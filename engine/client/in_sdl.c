@@ -969,7 +969,7 @@ void Sys_SendKeyEvents(void)
 	}
 #endif
 
-
+	// APPLE_SILICON : This is causing a crash for some reason, but only when not run under lldb
 	while(SDL_PollEvent(&event))
 	{
 		switch(event.type)

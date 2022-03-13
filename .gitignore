@@ -23,3 +23,14 @@
 # macOS
 ._*
 .DS_Store
+
+# Quake
+applesilicon/conhistory.txt
+applesilicon/maptimes.txt
+applesilicon/id1
+id1
+
+# Build
+engine/release
+engine/debug
+applesilicon/fteqw
