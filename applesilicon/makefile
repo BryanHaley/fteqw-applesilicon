@@ -8,6 +8,7 @@ LD  := g++
 
 CD    := cd
 RM    := rm
+COPY  := cp
 RMDIR := rm -r
 MKDIR := mkdir -p
 
@@ -120,6 +121,12 @@ brew_install_libs:
 compile: $(CLIENT_OBJS) $(SERVER_OBJS) $(COMMON_OBJS) $(GLQUAKE_OBJS) $(HTTP_OBJS) $(QCLIB_OBJS)
 
 build: compile link
+
+install:
+	$(COPY) $(EXE_NAME) $(BREW_PREFIX)/bin/
+
+uninstall:
+	$(RM) $(BREW_PREFIX)/bin/$(EXE_NAME)
 
 clean:
 	-$(RM) *.o
