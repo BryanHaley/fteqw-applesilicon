@@ -1,6 +1,6 @@
 # FTEQW on Apple Silicon
 
-This project builds FTEQW, a Quake engine source port, on Apple Silicon hosts for Apple Silicon targets.
+This project builds [FTEQW](https://fte.triptohell.info/), a Quake engine source port, on Apple Silicon hosts for Apple Silicon targets.
 
 It is forked from the [official fteqw SVN](https://sourceforge.net/p/fteqw/code/HEAD/tree/trunk/) circa ~6221.
 
