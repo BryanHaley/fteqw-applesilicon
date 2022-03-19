@@ -57,14 +57,15 @@ Locate the id1 folder from your Steam or CD install of Quake. Copy it into the f
 ```
 /path/to/FTEQW.app/Contents/Resources/
 ```
-If you used ```sudo make install``` the path will be ```/Applications/FTEQW.app/Contents/Resources/```. Additionally, if the ```.app``` is in ```/Applications```, it will open the ```Resources``` folder for you if id1 is not detected on launch.
+If you used ```sudo make install``` the path will be ```/Applications/FTEQW.app/Contents/Resources/```. Additionally, if the ```.app``` is in ```/Applications```, it will open the ```Resources``` folder for you if ```id1``` is not detected on launch.
 
 **NOTE:** you may need to rename the folder ```id1``` and the files ```pak0.pak``` and ```pak1.pak``` to all lowercase for fteqw to find them.
 
 ## Planned
 
 In the future, a native Metal renderer might be a necessity. Eventually OpenGL will be removed from macOS; it has been deprecated for years now.
-I'd also like to port Quakespasm's launcher menu on Mac to FTEQW to make launching easier (no looking in the ```Resources``` folder).
+
+I'd also like to port Quakespasm's launcher menu on Mac to FTEQW to make launching easier (i.e. no looking in the ```Resources``` folder).
 
 ## fteqw_readme.txt
 **NOTE:** Not all of the original readme applies to this build of fteqw. For example, this build only supports SDL with OpenGL renderer.
