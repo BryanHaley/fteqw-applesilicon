@@ -34,3 +34,6 @@ id1
 engine/release
 engine/debug
 applesilicon/fteqw
+applesilicon/FTEQW.app
+applesilicon/FTEQW.dmg
+applesilicon/dmg_tmp

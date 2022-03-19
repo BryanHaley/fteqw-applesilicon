@@ -2,15 +2,29 @@
 
 This project builds [FTEQW](https://fte.triptohell.info/), a Quake engine source port, on Apple Silicon hosts for Apple Silicon targets.
 
-It is forked from the [official fteqw SVN](https://sourceforge.net/p/fteqw/code/HEAD/tree/trunk/) circa ~6221.
+It is forked from the [official fteqw SVN](https://sourceforge.net/p/fteqw/code/HEAD/tree/trunk/) circa 6221.
 
 ## Building
 Currently, building requires [homebrew](https://brew.sh/), a macOS package manager. Install it if you don't have it already.
+
+### CLI
+To build a CLI only ```fteqw```:
 ```
 git clone https://github.com/BryanHaley/fteqw-applesilicon.git
 cd fteqw-applesilicon/applesilicon
-make brew_install_libs
+make brew_install_tools
 make
+```
+
+### App Bundle
+To build an executable ```.app```, follow the CLI instructions then additionally do:
+```
+make app BUILDING_APP=1
+```
+
+You may also create a DMG installer:
+```
+make dmg BUILD_FOR_MACOS12=1 BUILDING_APP=1
 ```
 
 ## Installing
@@ -22,8 +36,10 @@ Uninstalling is just as simple:
 ```
 sudo make uninstall
 ```
+If you built an App Bundle, ```sudo make install``` will copy ```FTEQW.app``` to ```/Applications```. If you did not build an app bundle, you can safely ignore the error when it tries to copy it.
 
 ## Running
+### CLI
 Locate the id1 folder from your Steam or CD install of Quake. Navigate to the enclosing folder with the terminal then run ```fteqw```.
 ```
 cd /path/to/quake
@@ -36,9 +52,19 @@ fteqw -basedir /path/to/quake
 
 **NOTE:** you may need to rename the folder ```id1``` and the files ```pak0.pak``` and ```pak1.pak``` to all lowercase for fteqw to find them.
 
+### FTEQW.app
+Locate the id1 folder from your Steam or CD install of Quake. Copy it into the following directory:
+```
+/path/to/FTEQW.app/Contents/Resources/
+```
+If you used ```sudo make install``` the path will be ```/Applications/FTEQW.app/Contents/Resources/```. Additionally, if the ```.app``` is in ```/Applications```, it will open the ```Resources``` folder for you if id1 is not detected on launch.
+
+**NOTE:** you may need to rename the folder ```id1``` and the files ```pak0.pak``` and ```pak1.pak``` to all lowercase for fteqw to find them.
+
 ## Planned
 
-In the future, I'd like to add native macOS features and build this project as a redistributable ```.app``` package. A native metal renderer may be possible as well, especially once Apple finally removes OpenGL.
+In the future, a native Metal renderer might be a necessity. Eventually OpenGL will be removed from macOS; it has been deprecated for years now.
+I'd also like to port Quakespasm's launcher menu on Mac to FTEQW to make launching easier (no looking in the ```Resources``` folder).
 
 ## fteqw_readme.txt
 **NOTE:** Not all of the original readme applies to this build of fteqw. For example, this build only supports SDL with OpenGL renderer.

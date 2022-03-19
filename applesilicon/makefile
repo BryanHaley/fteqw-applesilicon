@@ -2,17 +2,39 @@
 
 # Commands
 
-CC  := gcc
-CXX := g++
-LD  := g++
-
+CC    := gcc
+CXX   := g++
+LD    := g++
 CD    := cd
 RM    := rm
 COPY  := cp
+MOVE  := mv
 RMDIR := rm -r
 MKDIR := mkdir -p
+TOUCH := touch
+ECHO  := echo
+
+COPY_DIR := cp -r
+
+MAKE_ALIAS := ln -s
+CREATE_DMG := hdiutil create
+
+APPIFY := ./appify
+BUNDLE_LIBS := dylibbundler
 
 BREW_INSTALL := brew install
+
+# Files
+
+FTEQW_ICON := FTEQW.icns
+APP_NAME   := FTEQW
+APP_EXE    := $(APP_NAME).app
+APP_BINARY := $(APP_EXE)/Contents/MacOS/FTEQW
+INFO_PLIST := Info.plist
+
+DMG_INSTALLER := FTEQW.dmg
+
+ID1_NOTIF_FILE := put_id1_here!!!.txt
 
 # Directories
 
@@ -26,12 +48,15 @@ HTTP_DIR    := $(BASE_DIR)/http
 GL_DIR      := $(BASE_DIR)/gl
 QCLIB_DIR   := $(BASE_DIR)/qclib
 
+APP_LIBS_DIR := $(APP_EXE)/Contents/libs
+
+DMG_TMP := dmg_tmp
+
 # Libraries
-# TODO: Remove brew dependency and build libs manually
 
 BREW_PREFIX := $(shell brew --prefix)
 
-LIB_PACKAGES := pkg-config sdl2 libpng libjpeg libvorbis freetype speex speexdsp opus
+LIB_PACKAGES := pkg-config sdl2 libpng libjpeg libvorbis freetype speex speexdsp opus dylibbundler
 
 BREW_L_FLAGS := -L$(BREW_PREFIX)/lib
 BREW_C_FLAGS := -I$(BREW_PREFIX)/include
@@ -78,10 +103,29 @@ GLCFLAGS         := -DGLQUAKE
 
 APPLESILICON_CFLAGS := -DAPPLE_SILICON -DGLQUAKE -DNO_OPENAL -DNO_X11 -DLIBJPEG_STATIC -DLIBPNG_STATIC -DMULTITHREAD
 					 # -DOPUS_STATIC -DSPEEX_STATIC -DFREETYPE_STATIC -DLIBVORBISFILE_STATIC
+APPLESILICON_LFLAGS := 
 
-LD_FLAGS  := -lm -ldl -lpthread $(LIBS_L_FLAGS)
+# Used for building on Mac OS 12.0 host for a 12.0 redistributable package
+BUILD_FOR_MACOS12 := 0
+
+ifneq ($(BUILD_FOR_MACOS12), 0)
+	APPLESILICON_CFLAGS += -mmacosx-version-min=12.0
+	APPLESILICON_LFLAGS += -mmacosx-version-min=12.0
+endif
+
+BUILDING_APP := 0
+
+ifneq ($(BUILDING_APP), 0)
+	APPLESILICON_CFLAGS += -DAPP_BUNDLE
+	APPLESILICON_LFLAGS += -DAPP_BUNDLE
+endif
+
+LD_FLAGS  := -lm -ldl -lpthread $(LIBS_L_FLAGS) $(APPLESILICON_LFLAGS)
 C_FLAGS   := $(WARNINGFLAGS) $(DEBUG_CFLAGS) $(GLCFLAGS) $(LIBS_C_FLAGS) $(APPLESILICON_CFLAGS)
 CXX_FLAGS := $(C_FLAGS)
+
+# Other
+ID1_NOTIF := "Copy your id1 folder from your Steam/CD install of Quake into this folder, and make sure id1/pak0.pak and id1/pak1.pak are lower case!"
 
 # Objects
 
@@ -115,22 +159,45 @@ QCLIB_OBJS := hash.o initlib.o comprout.o pr_edict.o qcc_cmdlib.o pr_exec.o pr_m
 
 all: build
 
-brew_install_libs:
+brew_install_tools:
 	$(BREW_INSTALL) $(LIB_PACKAGES)
 
 compile: $(CLIENT_OBJS) $(SERVER_OBJS) $(COMMON_OBJS) $(GLQUAKE_OBJS) $(HTTP_OBJS) $(QCLIB_OBJS)
 
 build: compile link
 
+# TODO: Remove appify. Doesn't work very well for us.
+app: build
+	$(APPIFY) -name "$(APP_NAME)" -icon ./$(FTEQW_ICON) ./$(EXE_NAME)
+	$(MOVE) $(APP_BINARY).app $(APP_BINARY)
+	$(COPY) $(INFO_PLIST) $(APP_EXE)/Contents/
+	$(TOUCH) $(APP_EXE)/Contents/Resources/$(ID1_NOTIF_FILE)
+	@$(ECHO) $(ID1_NOTIF) > $(APP_EXE)/Contents/Resources/$(ID1_NOTIF_FILE)
+	$(BUNDLE_LIBS) -od -b -x ./$(APP_BINARY) -d ./$(APP_LIBS_DIR)/
+
+dmg: app
+	-$(RM) $(DMG_INSTALLER)
+	$(MKDIR) $(DMG_TMP)
+	$(COPY_DIR) $(APP_EXE) $(DMG_TMP)/$(APP_EXE)
+	$(MAKE_ALIAS) /Applications/ $(DMG_TMP)/Applications
+	$(CREATE_DMG) -srcfolder $(DMG_TMP) $(DMG_INSTALLER)
+	$(RMDIR) $(DMG_TMP)
+
 install:
 	$(COPY) $(EXE_NAME) $(BREW_PREFIX)/bin/
+	-$(COPY) $(APP_EXE) /Applications/
 
 uninstall:
 	$(RM) $(BREW_PREFIX)/bin/$(EXE_NAME)
+	-$(RMDIR) /Applications/$(APP_EXE)
 
 clean:
 	-$(RM) *.o
 	-$(RM) $(EXE_NAME)
+	-$(RM) $(DMG_INSTALLER)
+	-$(RMDIR) $(APP_EXE)
+	-$(RM) conhistory.txt
+	-$(RM) maptimes.txt
 
 link:
 	$(LD) $(CLIENT_OBJS) $(SERVER_OBJS) $(COMMON_OBJS) $(GLQUAKE_OBJS) $(HTTP_OBJS) $(QCLIB_OBJS) $(LD_FLAGS) -o $(EXE_NAME)

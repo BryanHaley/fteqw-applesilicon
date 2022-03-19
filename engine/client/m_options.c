@@ -4311,6 +4311,11 @@ void M_Menu_ModelViewer_f(void)
 }
 #endif
 
+#ifdef APP_BUNDLE
+// UGLY UGLY HACK! TODO: SOMETHING BETTER!
+	static int HAS_OPENED_DIR = 0;
+#endif
+
 static void Mods_Draw(int x, int y, struct menucustom_s *c, struct emenu_s *m)
 {
 	int i = c->dint;
@@ -4319,6 +4324,16 @@ static void Mods_Draw(int x, int y, struct menucustom_s *c, struct emenu_s *m)
 
 	if (!mod && !i)
 	{
+		#ifdef APP_BUNDLE
+		// UGLY UGLY HACK! TODO: SOMETHING BETTER!
+		if (!HAS_OPENED_DIR)
+		{
+			HAS_OPENED_DIR = 1;
+			system("open /Applications/FTEQW.app/Contents/Resources/");
+		}
+		#endif
+
+
 		float scale[] = {8,8};
 		R_DrawTextField(0, y, vid.width, vid.height - y,
 					va(
